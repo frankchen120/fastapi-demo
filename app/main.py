@@ -1,6 +1,12 @@
 from fastapi import FastAPI
-from app.schemas import Item
 from pydantic import BaseModel
+
+# 一次引 不建議
+#  from app.schemas import *
+# 各別寫 多的時後麻煩
+#  from app.schemas import Item, ItemResponse, Discount, DiscountResponse
+# 引module, 用schemas.X
+import app.schemas as schemas
 
 
 # 建立FastAPI物件
@@ -24,15 +30,21 @@ def health_check():
 def square(x: int):
     return {"x": x, "square": x*x}
 
-class ItemResponse(BaseModel):
-    name: str
-    total: float
-    
+
 # Day2: POST API
-@app.post("/items")
-def create_item(item: Item, response_model=ItemResponse):
+@app.post("/items", response_model=schemas.ItemResponse)
+def create_item(item: schemas.Item):
     total_price = item.price * item.quantity
-    return {
-        "name": item.name,
-        "total": total_price
-    }
+    return schemas.ItemResponse(
+        name = item.name,
+        total = total_price
+    )
+
+# Day2: POST API, discount
+@app.post("/discount", response_model=schemas.DiscountResponse)
+def create_item(discount: schemas.Discount):
+    final_price = discount.price * (1-discount.discount)
+    return schemas.DiscountResponse(
+        name= discount.name,
+        final_price= final_price
+    )
