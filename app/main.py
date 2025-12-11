@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from app.schemas import Item
+from pydantic import BaseModel
+
 
 # 建立FastAPI物件
 app = FastAPI()
@@ -22,13 +24,15 @@ def health_check():
 def square(x: int):
     return {"x": x, "square": x*x}
 
+class ItemResponse(BaseModel):
+    name: str
+    total: float
+    
 # Day2: POST API
 @app.post("/items")
-def create_item(item: Item):
+def create_item(item: Item, response_model=ItemResponse):
     total_price = item.price * item.quantity
     return {
         "name": item.name,
-        "price": item.price,
-        "quantity": item.quantity,
         "total": total_price
     }
