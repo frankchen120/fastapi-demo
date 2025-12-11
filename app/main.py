@@ -1,16 +1,19 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+from app.routers.discount import router as discount_router
+
 # 一次引 不建議
 #  from app.schemas import *
 # 各別寫 多的時後麻煩
 #  from app.schemas import Item, ItemResponse, Discount, DiscountResponse
 # 引module, 用schemas.X
-import app.schemas as schemas
+import app.schemas.schemas as schemas
 
 
 # 建立FastAPI物件
 app = FastAPI()
+
 
 #最簡單的GET endpoint
 @app.get("/")
@@ -40,11 +43,5 @@ def create_item(item: schemas.Item):
         total = total_price
     )
 
-# Day2: POST API, discount
-@app.post("/discount", response_model=schemas.DiscountResponse)
-def create_item(discount: schemas.Discount):
-    final_price = discount.price * (1-discount.discount)
-    return schemas.DiscountResponse(
-        name= discount.name,
-        final_price= final_price
-    )
+
+app.include_router(discount_router)
