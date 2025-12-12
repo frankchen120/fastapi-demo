@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-
 from app.routers.discount import router as discount_router
+
+from app.db.database import engine
+from app.models import discount
 
 # 一次引 不建議
 #  from app.schemas import *
@@ -45,3 +47,7 @@ def create_item(item: schemas.Item):
 
 
 app.include_router(discount_router)
+
+
+discount.Base.metadata.create_all(bind=engine)
+
