@@ -4,7 +4,10 @@ from app.schemas.discount import Discount, DiscountResponse
 from app.repositories.discount_repo import save_discount, get_all_discounts
 
 
-def calculate_discount(db:Session, data: Discount) -> DiscountResponse:
+def create_discount(db:Session, data: Discount) -> DiscountResponse:
+    if(data.discount < 0 or data.discount > 1):
+        raise ValueError("discount must between 0 and 1")
+    
     final_price = data.price * (1 - data.discount)
     
     discount = DiscountResponse(
