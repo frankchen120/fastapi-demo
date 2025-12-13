@@ -1,24 +1,32 @@
 from typing import List
 from sqlalchemy.orm import Session
-from app.schemas.discount import Discount, DiscountResponse
-from app.repositories.discount_repo import save_discount, get_all_discounts
+from app.schemas.discount import Discount, DiscountResponse, DiscountUpdate
+from app.repositories import discount_repo
 
+def _calc_final_price(price: float, discount:float) -> float:
+    return price * (1 - discount)
 
-def create_discount(db:Session, data: Discount) -> DiscountResponse:
-    if(data.discount < 0 or data.discount > 1):
-        raise ValueError("discount must between 0 and 1")
-    
-    final_price = data.price * (1 - data.discount)
-    
-    discount = DiscountResponse(
-        name= data.name,
-        final_price= final_price
-    )
-    
-    return save_discount(db, discount)
+def create_discount(db: Session, data: Discount):
+    final_price = _calc_final_price(data.price, data.discount)
+    return discount_repo.create(db, data.name, final_price)
 
-def list_discounts(db: Session) -> List[DiscountResponse]:
-    return get_all_discounts(db)
+def list_discounts(db: Session):
+    return discount_repo.list_all(db)
 
+def get_discount(db: Session, discount_id: int):
+    return discount_repo.get(db, discount_id)
 
-        
+def update_discount(db: Session, discount_id: int, data: DiscountUpdate):
+    obj = discount_repo.get(db, discount_id)
+    if not obj:
+        return None
+    name = data.name if data.name is not None else obj.name
+    return discount_repo.update(db, obj, name, obj.final_price)
+
+def delete_discount(db: Session, discount_id: int):
+    obj = discount_repo.get(db, discount_id)
+    if not obj:
+        return None
+    discount_repo.delete(db, obj)
+    return True
+
