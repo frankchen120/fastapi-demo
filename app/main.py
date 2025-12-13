@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from app.routers.discount import router as discount_router
 
@@ -13,11 +14,21 @@ import app.schemas.schemas as schemas
 # 建立FastAPI物件
 app = FastAPI()
 
+# CORKS設定
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://localhost:3000", # 前端 dev server
+    ],
+    allow_credentials=True,
+    allow_methods=["GET","POST","PUT","DELETE"],
+    allow_headers=["Authorization","Content-Type"],
+)
 
 #最簡單的GET endpoint
 @app.get("/")
 def read_root():
-    return {"message": "Hello FAstAPI, Weel1 Day1!"}
+    return {"message": "Hello FAstAPI"}
 
 #帶路徑參數的 endpoint
 @app.get("/hello/{name}")
