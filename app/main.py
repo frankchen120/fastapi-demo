@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+import logging
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from app.routers.discount import router as discount_router
-
+from app.core.logging import setup_logging
 # 一次引 不建議
 #  from app.schemas import *
 # 各別寫 多的時後麻煩
@@ -10,15 +11,27 @@ from app.routers.discount import router as discount_router
 # 引module, 用schemas.X
 import app.schemas.schemas as schemas
 
+setup_logging()
+
+logger = logging.getLogger("api")
+
 
 # 建立FastAPI物件
 app = FastAPI()
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.info(f"➡️{request.method} {request.url.path}")
+    response = await call_next(request)
+    logger.info(f"➡️{request.method} {request.url.path} - {response.status_code}")
+    return response
+
 
 # CORKS設定
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://localhost:3000", # 前端 dev server
+        "http://localhost:3000", # 前端 dev server
     ],
     allow_credentials=True,
     allow_methods=["GET","POST","PUT","DELETE"],
