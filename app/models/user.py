@@ -1,0 +1,13 @@
+from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy.orm import relationship
+from app.db.database import Base
+
+class UserModel(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True)
+    email = Column(String, unique=True, nullable=False)
+    
+    orders = relationship("OrderModel", back_populates="user")
+    
+    

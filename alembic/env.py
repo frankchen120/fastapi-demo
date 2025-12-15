@@ -6,7 +6,11 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.db.database import Base, DATABASE_URL
+
 from app.models.discount import DiscountModel
+from app.models.user import UserModel
+from app.models.order import OrderModel
+from app.models.order_item import OrderItemModel
 
 
 # this is the Alembic Config object, which provides
