@@ -15,7 +15,7 @@ def get_db():
     finally:
         db.close()
         
-@router.get("user/{user_id}", response_model=List[OrderResponse])
+@router.get("/user/{user_id}", response_model=List[OrderResponse])
 def list_user_orders(user_id: int, db: Session = Depends(get_db)):
     orders = get_user_orders(db, user_id)
     return orders
