@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from app.routers.discount import router as discount_router
+from app.routers.order import router as order_router
 from app.core.logging import setup_logging
 # 一次引 不建議
 #  from app.schemas import *
@@ -68,3 +69,4 @@ def create_item(item: schemas.Item):
 
 
 app.include_router(discount_router)
+app.include_router(order_router)
