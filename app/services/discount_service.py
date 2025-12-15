@@ -8,7 +8,12 @@ def _calc_final_price(price: float, discount:float) -> float:
 
 def create_discount(db: Session, data: Discount):
     final_price = _calc_final_price(data.price, data.discount)
-    return discount_repo.create(db, data.name, final_price)
+    return discount_repo.create(
+        db, 
+        data.name, 
+        data.price,
+        data.discount,
+        final_price)
 
 def list_discounts(db: Session):
     return discount_repo.list_all(db)
@@ -20,8 +25,17 @@ def update_discount(db: Session, discount_id: int, data: DiscountUpdate):
     obj = discount_repo.get(db, discount_id)
     if not obj:
         return None
-    name = data.name if data.name is not None else obj.name
-    return discount_repo.update(db, obj, name, obj.final_price)
+    
+    if(data.name is not None):
+        obj.name = data.name
+    if(data.price is not None):
+        obj.price = data.price
+    if(data.discount is not None):    
+        obj.discount = data.discount
+
+    obj.final_price = _calc_final_price(obj.price, obj.discount)        
+    
+    return discount_repo.update(db, obj)
 
 def delete_discount(db: Session, discount_id: int):
     obj = discount_repo.get(db, discount_id)
