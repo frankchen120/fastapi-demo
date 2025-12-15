@@ -11,6 +11,6 @@ class OrderModel(Base):
     crated_at = Column(DateTime, default=datetime.utcnow)
     
     user = relationship("UserModel", back_populates="orders")
-    items = relationship("ORderItemModel", back_populates="order")
+    items = relationship("OrderItemModel", back_populates="order")
     
     
