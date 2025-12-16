@@ -8,6 +8,8 @@ class UserModel(Base):
     id = Column(Integer, primary_key=True)
     email = Column(String, unique=True, nullable=False)
     
+    password_hash = Column(String, nullable=False)
+    
     orders = relationship("OrderModel", back_populates="user")
     
     

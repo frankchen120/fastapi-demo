@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
+from app.dependencies.auth import get_current_user
 from app.services.order_service import get_user_orders, get_order_items
 from app.schemas.order import OrderResponse, OrderItemResponse
 from app.db.database import SessionLocal
@@ -26,3 +27,11 @@ def list_order_items(order_id: int, db: Session = Depends(get_db)):
     if items is None:
         raise HTTPException(status_code=404, detail="Order not found")
     return items
+
+@router.get("/me/orders")
+def my_orders(
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    orders = get_user_orders(db, current_user.id)
+    return orders
