@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.dependencies.auth import get_current_user
-from app.services.order_service import get_user_orders, get_order_items
-from app.schemas.order import OrderResponse, OrderItemResponse
+from app.services.order_service import get_user_orders, get_order_items, place_order
+from app.schemas.order import OrderCreateRequest, OrderCreateResponse, OrderResponse, OrderItemResponse
 from app.db.database import SessionLocal
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
@@ -35,3 +35,17 @@ def my_orders(
 ):
     orders = get_user_orders(db, current_user.id)
     return orders
+
+@router.post("/me", response_model=OrderCreateResponse)
+def create_my_order(
+    data: OrderCreateRequest,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if len(data.items) == 0:
+        raise HTTPException(status_code=400, detail="items can't be empty")
+    
+    order_id = place_order(db, current_user.id, [it.model_dump() for it in data.items])
+    return {"order_id": order_id, "items_count": len(data.items)}
+
+    
