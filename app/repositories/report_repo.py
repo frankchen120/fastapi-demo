@@ -1,6 +1,6 @@
 
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, text
 from app.models.order import OrderModel
 from app.models.order_item import OrderItemModel
 from app.models.user import UserModel
@@ -42,3 +42,22 @@ def get_top_users_by_spending(db: Session, limit: int = 5):
         .all()
     )
 
+def get_top_users_by_spending_ranking(db: Session, limit: int = 5):
+    sql = text("""
+               SELECT
+                user_id,
+                total_spent,
+                RANK() OVER (ORDER BY total_spent DESC) AS rank
+                FROM (
+                SELECT
+                    u.id AS user_id,
+                    SUM(i.unit_price * i.quantity) AS total_spent
+                FROM users u
+                JOIN orders o ON o.user_id = u.id
+                JOIN order_items i ON i.order_id = o.id
+                GROUP BY u.id
+                ) t;
+            """)
+    result = db.execute(sql)
+    return result.fetchall()
+    
