@@ -1,14 +1,9 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from app.core.settings import settings
 
-# DATABASE_URL = "postgresql+psycopg2://app:app123@localhost:5432/fastapi_db"
-DATABASE_URL = (
-    f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}"
-    f"@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
-)
-
-engine = create_engine(DATABASE_URL)
+engine = create_engine(settings.DATABASE_URL)
 
 SessionLocal = sessionmaker(
     autocommit=False,
@@ -18,4 +13,5 @@ SessionLocal = sessionmaker(
 
 Base = declarative_base()
 
+from app.core import settings
 import app.models

@@ -5,7 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.db.database import Base, DATABASE_URL
+from app.core.settings import settings
+from app.db.database import Base
 
 from app.models.discount import DiscountModel
 from app.models.user import UserModel
@@ -68,7 +69,7 @@ def run_migrations_online() -> None:
     """
     
     # ✅ 讓 Alembic 使用你專案的 DATABASE_URL
-    config.set_main_option("sqlalchemy.url", DATABASE_URL)
+    config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
     
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
