@@ -1,3 +1,4 @@
+from http.client import BAD_REQUEST
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
@@ -25,8 +26,6 @@ def list_user_orders(user_id: int, db: Session = Depends(get_db)):
 @router.get("/{order_id}/items", response_model=List[OrderItemResponse])
 def list_order_items(order_id: int, db: Session = Depends(get_db)):
     items = get_order_items(db, order_id)
-    if items is None:
-        raise HTTPException(status_code=404, detail="Order not found")
     return items
 
 @router.get("/me/orders")
@@ -45,7 +44,7 @@ def create_my_order(
     db: Session = Depends(get_db)
 ):
     if len(data.items) == 0:
-        raise HTTPException(status_code=400, detail="items can't be empty")
+        raise BAD_REQUEST("items cannot be empty")
     
     order_id = place_order(db, current_user.id, [it.model_dump() for it in data.items])
     return {"order_id": order_id, "items_count": len(data.items)}

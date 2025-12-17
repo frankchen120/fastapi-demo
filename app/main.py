@@ -18,10 +18,7 @@ from app.schemas.error import ErrorResponse
 import app.schemas.schemas as schemas
 
 setup_logging()
-
 logger = logging.getLogger("api")
-
-
 
 # 建立FastAPI物件
 app = FastAPI()
@@ -29,6 +26,7 @@ app = FastAPI()
 @app.exception_handler(AppError)
 async def app_error_handler(request: Request, exc: AppError):
     status_map = {
+        "BAD_REQUEST": 400,
         "NOT_FOUND": 404,
         "CONFLICT": 409,
         "UNAUTHORIZED": 401,

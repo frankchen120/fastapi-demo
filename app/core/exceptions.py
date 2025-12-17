@@ -22,3 +22,8 @@ class UnauthorizedError(AppError):
 class ForbiddenError(AppError):
     code = "FORBIDDEN"
     message = "Forbidden"
+    
+class BadReqeustError(AppError):
+    code = "BAD_REQUEST"
+    message = "Bad request"
+    
