@@ -5,6 +5,7 @@ from jose import jwt, JWTError
 
 from app.core.security import SECRET_KEY, ALGORITHM
 from app.db.database import SessionLocal
+from app.models.enums import UserRole
 from app.repositories.user_repo import get_user_by_id
 
 #oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -39,3 +40,15 @@ def get_current_user(
         )
         
     return user
+
+def require_role(required_role: UserRole):
+    def role_checker(
+        current_user = Depends(get_current_user)
+    ):
+        if current_user.role != required_role:
+            raise HTTPException(
+                status_code=403,
+                detail="Permission denied"
+            )
+        return current_user
+    return role_checker
