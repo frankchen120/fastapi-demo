@@ -65,7 +65,7 @@ app.add_middleware(
 #最簡單的GET endpoint
 @app.get("/")
 def read_root():
-    return {"message": "Hello FAstAPI"}
+    return {"message": "Hello FastAPI"}
 
 #帶路徑參數的 endpoint
 @app.get("/hello/{name}")
