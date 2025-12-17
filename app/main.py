@@ -1,7 +1,9 @@
 import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from app.core.exceptions import AppError
 from app.routers.discount import router as discount_router
 from app.routers.auth import router as auth_router
 from app.routers.order import router as order_router
@@ -12,6 +14,7 @@ from app.core.logging import setup_logging
 # 各別寫 多的時後麻煩
 #  from app.schemas import Item, ItemResponse, Discount, DiscountResponse
 # 引module, 用schemas.X
+from app.schemas.error import ErrorResponse
 import app.schemas.schemas as schemas
 
 setup_logging()
@@ -19,8 +22,28 @@ setup_logging()
 logger = logging.getLogger("api")
 
 
+
 # 建立FastAPI物件
 app = FastAPI()
+
+@app.exception_handler(AppError)
+async def app_error_handler(request: Request, exc: AppError):
+    status_map = {
+        "NOT_FOUND": 404,
+        "CONFLICT": 409,
+        "UNAUTHORIZED": 401,
+        "FORBIDDEN": 403,
+    }
+    
+    status_code = status_map.get(getattr(exc, "code", "APP_ERROR"), 400)
+    
+    payload = ErrorResponse(
+        code = exc.code,
+        message = exc.message,
+        detail = getattr(exc, "detail", None)
+    ).model_dump()
+    
+    return JSONResponse(status_code=status_code, content=payload)
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
