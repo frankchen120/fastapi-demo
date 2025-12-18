@@ -15,6 +15,5 @@ def create_user(db: Session, email: str, password_hash: str):
     )
     
     db.add(user)
-    db.commit()
-    db.refresh(user)
+    db.flush() # 取得 user.id
     return user

@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import UnauthorizedError
-from app.schemas.auth import LoginRequest, TokenResponse
+from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse
+from app.services.auth_service import register_user
+ 
 from app.repositories.user_repo import get_user_by_email
 from app.core.password import verify_password  
 from app.core.security import create_access_token
@@ -16,6 +18,11 @@ def get_db():
         yield db
     finally:
         db.close()
+        
+@router.post("/register")
+def register(data: RegisterRequest, db: Session=Depends(get_db)):
+    user = register_user(db, data.email, data.password)
+    return {"id": user.id, "email": user.email }
         
 @router.post("/login", response_model=TokenResponse)
 def login(data: LoginRequest, db: Session=Depends(get_db)):
