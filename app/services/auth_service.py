@@ -18,4 +18,6 @@ def register_user(db: Session, email: str, password: str):
     except IntegrityError:
         db.rollback()
         raise ConflictError("email already exists")
-
+    except:
+        db.rollback()
+        raise
