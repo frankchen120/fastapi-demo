@@ -1,3 +1,4 @@
+import logging
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -13,6 +14,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 #bearer_scheme = HTTPBearer()
 
+logger = logging.getLogger("api")
 
 def get_db():
     db = SessionLocal()
@@ -20,18 +22,31 @@ def get_db():
         yield db
     finally:
         db.close()
-        
+
+
+def get_token(token: str = Depends(oauth2_scheme)) -> str:
+    logger.info(f"[auth] extracted token prefix={token[:10] if token else None}")
+    return token
+
 def get_current_user(
-    token: str = Depends(oauth2_scheme),    
+    token: str = Depends(get_token),    
     db: Session = Depends(get_db)
 ):
+    logger.info(f"[auth] token present={bool(token)} prefix={token[:10] if token else None}")
+    
     try:
         payload = decode_token(token)
+        logger.info(f"[auth] decoded payload keys={list(payload.keys())}")
+        
         user_id = payload.get("sub")
+        
         if not user_id:
             raise UnauthorizedError("invalid token")
-    except Exception:
+    except Exception as e:
+        logger.exception(f"[auth] decode failed: {e}")
         raise UnauthorizedError("invalid token")
+        
+    logger.info(f"[auth] user-id={user_id}")
         
     user = get_user_by_id(db, int(user_id))
     if not user:

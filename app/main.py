@@ -45,7 +45,8 @@ async def app_error_handler(request: Request, exc: AppError):
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    logger.info(f"➡️{request.method} {request.url.path}")
+    auth = request.headers.get("authorization")
+    logger.info(f"➡️{request.method} {request.url.path} auth={auth[:20] + '...' if auth else None}")
     response = await call_next(request)
     logger.info(f"➡️{request.method} {request.url.path} - {response.status_code}")
     return response

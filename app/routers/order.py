@@ -1,4 +1,5 @@
 from http.client import BAD_REQUEST
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
@@ -8,6 +9,8 @@ from app.services.order_service import get_user_orders, get_order_items, place_o
 from app.schemas.order import OrderCreateRequest, OrderCreateResponse, OrderResponse, OrderItemResponse
 from app.db.database import SessionLocal
 from app.models.enums import UserRole
+
+logger = logging.getLogger("api")
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
