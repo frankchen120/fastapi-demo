@@ -38,7 +38,7 @@ async def app_error_handler(request: Request, exc: AppError):
     payload = ErrorResponse(
         code = exc.code,
         message = exc.message,
-        detail = getattr(exc, "detail", None)
+        details = getattr(exc, "detail", None)
     ).model_dump()
     
     return JSONResponse(status_code=status_code, content=payload)
@@ -52,13 +52,14 @@ async def log_requests(request: Request, call_next):
     return response
 
 
-# CORKS設定
+# CORS設定
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "http://localhost",
         "http://localhost:3000", # 前端 dev server
     ],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["GET","POST","PUT","DELETE"],
     allow_headers=["Authorization","Content-Type"],
 )
