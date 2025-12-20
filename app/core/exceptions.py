@@ -27,3 +27,6 @@ class BadReqeustError(AppError):
     code = "BAD_REQUEST"
     message = "Bad request"
     
+class TooManyRequestsError(AppError):
+    code = "TOO_MANY_REQUESTS"
+    message = "Too many requests"

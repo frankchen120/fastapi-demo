@@ -4,6 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import UnauthorizedError
+from app.dependencies.rate_limit import rate_limit
 from app.dependencies.auth import get_current_user
 from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse
 from app.services.auth_service import register_user
@@ -29,7 +30,8 @@ def register(data: RegisterRequest, db: Session=Depends(get_db)):
     user = register_user(db, data.email, data.password)
     return {"id": user.id, "email": user.email }
         
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse,
+            dependencies=[Depends(rate_limit(5, 60))])
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session=Depends(get_db)):
     email = form_data.username
     password = form_data.password

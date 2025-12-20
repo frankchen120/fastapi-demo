@@ -31,6 +31,7 @@ async def app_error_handler(request: Request, exc: AppError):
         "CONFLICT": 409,
         "UNAUTHORIZED": 401,
         "FORBIDDEN": 403,
+        "TOO_MANY_REQUESTS": 429,
     }
     
     status_code = status_map.get(getattr(exc, "code", "APP_ERROR"), 400)
