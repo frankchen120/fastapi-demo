@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
 import logging
+import time
+import uuid
 from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -58,12 +60,39 @@ async def app_error_handler(request: Request, exc: AppError):
     return JSONResponse(status_code=status_code, content=payload)
 
 @app.middleware("http")
-async def log_requests(request: Request, call_next):
-    auth = request.headers.get("authorization")
-    logger.info(f"➡️{request.method} {request.url.path} auth={auth[:20] + '...' if auth else None}")
-    response = await call_next(request)
-    logger.info(f"➡️{request.method} {request.url.path} - {response.status_code}")
-    return response
+async def request_context_logging(request: Request, call_next):
+    request_id = request.headers.get("x-request-id") or str(uuid.uuid4())
+    start = time.perf_counter()
+    has_auth = request.headers.get("authorization") is not None
+    
+    response = None
+    try:
+        response = await call_next(request)
+        return response
+    finally:
+        duration_ms = int((time.perf_counter() - start) * 1000)
+        
+        # client ip：本機/反代情境都先取基本版
+        client_ip = request.client.host if request.client else None
+        
+        #status_code = getattr(locals().get("response", None), "status_code", 500)
+        status_code = response.status_code if response else None
+        
+        logger.info(
+            "request_completed",
+            extra={
+                "request_id": request_id,
+                "method": request.method,
+                "path": request.url.path,
+                "status_code": status_code,
+                "duration_ms": duration_ms,
+                "client_ip": client_ip,
+                "has_auth": has_auth,
+            }
+        )
+        
+        if response is not None:
+            response.headers["X-Request-ID"] = request_id
 
 
 # CORS設定

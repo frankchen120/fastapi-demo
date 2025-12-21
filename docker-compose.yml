@@ -47,10 +47,13 @@ services:
       start_period: 15s
 
     command: >
-      bash -c "sleep 3 &&
-               alembic upgrade head &&
-               uvicorn app.main:app --host 0.0.0.0 --port 8000
+      bash -c "sleep 3 && 
+               alembic upgrade head && 
+               uvicorn app.main:app --host 0.0.0.0 --port 8000 
+               --no-access-log 
                --proxy-headers --timeout-graceful-shutdown 15"
+
+
 
   nginx:
     image: nginx:alpine
