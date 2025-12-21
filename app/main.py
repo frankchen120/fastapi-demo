@@ -1,14 +1,19 @@
+from contextlib import asynccontextmanager
 import logging
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from sqlalchemy import text
 from app.core.exceptions import AppError
 from app.routers.discount import router as discount_router
-from app.routers.auth import router as auth_router
+from app.routers.auth import get_db, router as auth_router
 from app.routers.order import router as order_router
 from app.routers.report import router as report_router
 from app.core.logging import setup_logging
+from sqlalchemy.orm import Session
+
+
 # 一次引 不建議
 #  from app.schemas import *
 # 各別寫 多的時後麻煩
@@ -20,8 +25,16 @@ import app.schemas.schemas as schemas
 setup_logging()
 logger = logging.getLogger("api")
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("startup: app is starting")
+    yield
+    logger.info("shutdown: app is stopping")
+
+
 # 建立FastAPI物件
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 @app.exception_handler(AppError)
 async def app_error_handler(request: Request, exc: AppError):
@@ -78,6 +91,11 @@ def say_hello(name: str):
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+@app.get("/ready")
+def ready(db: Session = Depends(get_db)):
+    db.execute(text("SELECT 1"))
+    return {"status": "ready"}
 
 # Day2: POST API
 @app.post("/items", response_model=schemas.ItemResponse)
