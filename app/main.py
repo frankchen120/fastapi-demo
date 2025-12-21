@@ -79,11 +79,6 @@ def say_hello(name: str):
 def health_check():
     return {"status": "ok"}
 
-@app.get("/square")
-def square(x: int):
-    return {"x": x, "square": x*x}
-
-
 # Day2: POST API
 @app.post("/items", response_model=schemas.ItemResponse)
 def create_item(item: schemas.Item):
