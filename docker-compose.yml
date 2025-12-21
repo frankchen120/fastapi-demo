@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:16
     container_name: fastapi-db
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -10,33 +11,57 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - appnet
-    # --- 新增健康檢查 ---
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   api:
     build: .
     container_name: fastapi-api
+    restart: unless-stopped
     depends_on:
       db:
-        condition: service_healthy # --- 修改這裡：確保 db 健康才啟動 api ---
+        condition: service_healthy
     env_file:
       - .env
     ports:
       - "8000:8000"
     networks:
       - appnet
-    # 在執行 alembic 前稍微 sleep 確保 DNS 完全就緒
+
+    # 給 docker 足夠時間讓 uvicorn 做 graceful shutdown
+    stop_grace_period: 20s
+
+    # api healthcheck：不用 curl/wget，直接用 python 打自己
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).read()\""
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
+
     command: >
-      bash -c "sleep 3 && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+      bash -c "sleep 3 &&
+               alembic upgrade head &&
+               uvicorn app.main:app --host 0.0.0.0 --port 8000
+               --proxy-headers --timeout-graceful-shutdown 15"
 
   nginx:
     image: nginx:alpine
+    container_name: fastapi-nginx
+    restart: unless-stopped
+
+    # ✅ 讓 nginx 等 api healthy 再起（避免啟動期大量 502）
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+
     ports:
       - "80:80"
       - "443:443"
@@ -45,7 +70,7 @@ services:
       - ./certs:/etc/nginx/certs:ro
     networks:
       - appnet
-      
+
 networks:
   appnet:
 
