@@ -1,0 +1,10 @@
+venv/
+.vscode/
+.env
+certs/
+*.pem
+*.key
+letsencrypt/
+__pycache__/
+*.pyc
+.pgdata/
