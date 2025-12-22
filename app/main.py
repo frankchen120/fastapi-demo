@@ -72,8 +72,10 @@ async def request_context_logging(request: Request, call_next):
     finally:
         duration_ms = int((time.perf_counter() - start) * 1000)
         
-        # client ip：本機/反代情境都先取基本版
-        client_ip = request.client.host if request.client else None
+        # 考慮nginx client ip        
+        xff = request.headers.get("x-forwarded-for")
+        client_ip = (xff.split(",")[0].strip() if xff else (request.client.host if request.client else None))
+
         
         #status_code = getattr(locals().get("response", None), "status_code", 500)
         status_code = response.status_code if response else None
