@@ -12,18 +12,12 @@ from app.services.auth_service import register_user
 from app.repositories.user_repo import get_user_by_email
 from app.core.password import verify_password  
 from app.core.jwt import create_access_token
-from app.db.database import SessionLocal
+from app.db.database import get_db
 
 logger = logging.getLogger("api")
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
         
 @router.post("/register")
 def register(data: RegisterRequest, db: Session=Depends(get_db)):

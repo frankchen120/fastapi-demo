@@ -7,16 +7,10 @@ from app.schemas.discount import Discount, DiscountResponse, DiscountUpdate
 from app.services.discount_service import (
     create_discount, list_discounts, get_discount, update_discount, delete_discount
 )
-from app.db.database import SessionLocal
+from app.db.database import get_db
 
 router = APIRouter(prefix="/discount", tags=["Discount"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post("/", response_model=DiscountResponse, status_code=status.HTTP_201_CREATED)
 def create(discount: Discount, db: Session = Depends(get_db)):

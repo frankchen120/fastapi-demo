@@ -6,7 +6,7 @@ from jose import jwt, JWTError
 
 from app.core.exceptions import UnauthorizedError
 from app.core.jwt import ALGORITHM, decode_token
-from app.db.database import SessionLocal
+from app.db.database import get_db
 from app.models.enums import UserRole
 from app.repositories.user_repo import get_user_by_id
 
@@ -16,12 +16,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 logger = logging.getLogger("api")
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def get_token(token: str = Depends(oauth2_scheme)) -> str:

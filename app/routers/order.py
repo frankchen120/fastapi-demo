@@ -7,19 +7,13 @@ from typing import List
 from app.dependencies.auth import get_current_user, require_role
 from app.services.order_service import get_user_orders, get_order_items, place_order
 from app.schemas.order import OrderCreateRequest, OrderCreateResponse, OrderResponse, OrderItemResponse
-from app.db.database import SessionLocal
+from app.db.database import get_db
 from app.models.enums import UserRole
 
 logger = logging.getLogger("api")
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
         
 @router.get("/user/{user_id}", response_model=List[OrderResponse])
 def list_user_orders(user_id: int, db: Session = Depends(get_db)):

@@ -1,16 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.services.repo_service import get_user_spending, get_spending_ranking
-from app.db.database import SessionLocal
+from app.db.database import get_db
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
         
 @router.get("/user/{user_id}/total-spent")
 def user_spending_report(user_id: int, db: Session = Depends(get_db)):

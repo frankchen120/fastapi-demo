@@ -9,7 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy import text
 from app.core.exceptions import AppError
 from app.routers.discount import router as discount_router
-from app.routers.auth import get_db, router as auth_router
+from app.db.database import get_db
+from app.routers.auth import router as auth_router
 from app.routers.order import router as order_router
 from app.routers.report import router as report_router
 from app.core.logging import setup_logging
