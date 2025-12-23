@@ -22,6 +22,15 @@
   - Nginx
 
 ---
+### Key Features
+- JWT-based authentication
+- Rate limiting on authentication endpoints
+- Database schema migration with Alembic
+- Health and readiness checks for service startup
+- Structured logging and basic error handling
+- Containerized deployment with Docker Compose
+  
+---
 ## How to Run (Docker)
 ```
 # build and start services
@@ -46,14 +55,3 @@ Example APIs:
 - GET /auth/me
 - POST /orders/me
 - GET /orders/me/orders
-
----
-
-## What I learned
-- Designing a FastAPI project structure
-- Implementing JWT-based authentication
-- Applying transaction control in service layer
-- Handling database migrations with Alembic
-- Securing APIs by rate limiting and CORS
-- Depolying backend services with Docker and Nginx
-  
