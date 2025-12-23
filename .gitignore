@@ -1,6 +1,7 @@
 venv/
 .vscode/
 .env
+.env.local
 certs/
 *.pem
 *.key
