@@ -1,8 +1,8 @@
-# FastAPI E-commerce Backend (demo)
+# FastAPI Backend Demo (GCP / Docker)
 
 ---
 ## Overview
-一個基於FastAPI的簡單電商後端，包含註冊、登入、下單，
+一個基於Python/FastAPI的簡單後端，包含註冊、登入、下單，
 以 JWT 做認證，登入有 rate limit，整個系統用 Docker 部署。
 
 ---
