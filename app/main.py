@@ -1,7 +1,7 @@
-from contextlib import asynccontextmanager
 import logging
 import time
 import uuid
+from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -15,19 +15,11 @@ from app.routers.order import router as order_router
 from app.routers.report import router as report_router
 from app.core.logging import setup_logging
 from sqlalchemy.orm import Session
-
-
-# 一次引 不建議
-#  from app.schemas import *
-# 各別寫 多的時後麻煩
-#  from app.schemas import Item, ItemResponse, Discount, DiscountResponse
-# 引module, 用schemas.X
 from app.schemas.error import ErrorResponse
 import app.schemas.schemas as schemas
 
 setup_logging()
 logger = logging.getLogger("api")
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -77,7 +69,6 @@ async def request_context_logging(request: Request, call_next):
         xff = request.headers.get("x-forwarded-for")
         client_ip = (xff.split(",")[0].strip() if xff else (request.client.host if request.client else None))
 
-        
         #status_code = getattr(locals().get("response", None), "status_code", 500)
         status_code = response.status_code if response else None
         
@@ -110,16 +101,6 @@ app.add_middleware(
     allow_headers=["Authorization","Content-Type"],
 )
 
-#最簡單的GET endpoint
-@app.get("/")
-def read_root():
-    return {"message": "Hello FastAPI"}
-
-#帶路徑參數的 endpoint
-@app.get("/hello/{name}")
-def say_hello(name: str):
-    return {"greeting": f"Hello, {name}"}
-
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
@@ -128,16 +109,6 @@ def health_check():
 def ready(db: Session = Depends(get_db)):
     db.execute(text("SELECT 1"))
     return {"status": "ready"}
-
-# Day2: POST API
-@app.post("/items", response_model=schemas.ItemResponse)
-def create_item(item: schemas.Item):
-    total_price = item.price * item.quantity
-    return schemas.ItemResponse(
-        name = item.name,
-        total = total_price
-    )
-
 
 app.include_router(discount_router)
 app.include_router(auth_router)
