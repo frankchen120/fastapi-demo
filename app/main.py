@@ -8,7 +8,6 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy import text
 from app.core.exceptions import AppError
-from app.routers.discount import router as discount_router
 from app.db.database import get_db
 from app.routers.auth import router as auth_router
 from app.routers.order import router as order_router
@@ -110,7 +109,6 @@ def ready(db: Session = Depends(get_db)):
     db.execute(text("SELECT 1"))
     return {"status": "ready"}
 
-app.include_router(discount_router)
 app.include_router(auth_router)
 app.include_router(order_router)
 app.include_router(report_router)

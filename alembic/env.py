@@ -8,7 +8,6 @@ from alembic import context
 from app.core.settings import settings
 from app.db.database import Base
 
-from app.models.discount import DiscountModel
 from app.models.user import UserModel
 from app.models.order import OrderModel
 from app.models.order_item import OrderItemModel
