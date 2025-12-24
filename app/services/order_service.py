@@ -16,6 +16,10 @@ def get_order_items(db: Session, order_id: int):
     if not order:
         raise NotFoundError(f"order_id={order_id}")
     return order.items
+   
+def get_order_by_id(db: Session, order_id: int):
+    order = order_repo.get_order_by_id(db, order_id)
+    return order
 
 def place_order(db: Session, user_id: int, items: list[dict]) -> int:
     try:
@@ -33,4 +37,4 @@ def place_order(db: Session, user_id: int, items: list[dict]) -> int:
     except Exception:
         db.rollback()
         raise
-    
+ 

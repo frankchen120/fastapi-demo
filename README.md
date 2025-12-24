@@ -50,8 +50,10 @@ Swagger UI:
 https://localhost/docs
 ```
 Example APIs:
+- GET /health
+- GET /ready
 - POST /auth/register
 - POST /auth/login
-- GET /auth/me
 - POST /orders/me
-- GET /orders/me/orders
+- GET /orders/me
+- GET /orders/{order_id}/items
